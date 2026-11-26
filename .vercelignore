@@ -1,0 +1,10 @@
+app/
+tests/
+data/
+requirements.txt
+yolov8n.pt
+render.yaml
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
