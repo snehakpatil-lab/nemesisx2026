@@ -2,7 +2,7 @@ import sqlite3
 import unittest
 from unittest.mock import patch
 
-from app.main import Q, chat
+from app.service import Q, chat
 
 
 def run_chat(question):
@@ -20,7 +20,7 @@ def run_chat(question):
             (7, 1, 1.0, 1, 'car', 0.9, 12, 10, 32, 30),
             (7, 0, 0.0, 2, 'person', 0.9, 50, 20, 60, 50);
     """)
-    with patch("app.main.db.conn", return_value=connection):
+    with patch("app.service.db.conn", return_value=connection):
         return chat(Q(question=question, video_id=7))
 
 

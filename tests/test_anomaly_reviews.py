@@ -2,7 +2,7 @@ import sqlite3
 import unittest
 from unittest.mock import patch
 
-from app.main import (
+from app.service import (
     AnomalyReview,
     anomalies,
     model_motion_anomalies,
@@ -36,7 +36,7 @@ def anomaly_database():
 class AnomalyReviewTests(unittest.TestCase):
     def test_empty_candidates_include_threshold_and_review_state(self):
         connection = anomaly_database()
-        with patch("app.main.db.conn", return_value=connection):
+        with patch("app.service.db.conn", return_value=connection):
             result = anomalies(7)
 
         self.assertEqual(result["candidates"], [])
@@ -72,9 +72,9 @@ class AnomalyReviewTests(unittest.TestCase):
     def test_review_action_persists_candidate_status_and_note(self):
         connection = anomaly_database()
         candidate = {"id": "speed-car-1"}
-        with patch("app.main.db.conn", return_value=connection), \
-             patch("app.main.motion_anomalies", return_value=[candidate]), \
-             patch("app.main.model_motion_anomalies", return_value=[]):
+        with patch("app.service.db.conn", return_value=connection), \
+             patch("app.service.motion_anomalies", return_value=[candidate]), \
+             patch("app.service.model_motion_anomalies", return_value=[]):
             result = review_anomaly(
                 7, candidate["id"], AnomalyReview(status="confirmed", note="Checked timestamp"),
             )

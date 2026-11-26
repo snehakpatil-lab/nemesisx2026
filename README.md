@@ -11,7 +11,7 @@ FastAPI + YOLO/ByteTrack + SQLite. Runs fully local; **no API key needed**.
    python -m venv .venv
    # Windows: .venv\Scripts\activate      Ubuntu: source .venv/bin/activate
    pip install -r requirements-render.txt
-   uvicorn app.main:app --port 8000
+   uvicorn app.service:app --port 8000
    ```
 4. Open http://localhost:8000 (first analysis downloads the YOLO weights, so it needs internet once).
 

@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 from fastapi import HTTPException
 
-from app.main import video_report
+from app.service import video_report
 
 
 def report_database(status="done"):
@@ -43,7 +43,7 @@ def report_database(status="done"):
 class PdfReportTests(unittest.TestCase):
     def test_processed_video_returns_downloadable_pdf(self):
         connection = report_database()
-        with patch("app.main.db.conn", return_value=connection):
+        with patch("app.service.db.conn", return_value=connection):
             response = video_report(7)
 
         self.assertEqual(response.media_type, "application/pdf")
@@ -58,7 +58,7 @@ class PdfReportTests(unittest.TestCase):
 
     def test_unprocessed_video_cannot_generate_report(self):
         connection = report_database(status="uploaded")
-        with patch("app.main.db.conn", return_value=connection):
+        with patch("app.service.db.conn", return_value=connection):
             with self.assertRaises(HTTPException) as error:
                 video_report(7)
 
