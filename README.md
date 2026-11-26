@@ -24,11 +24,13 @@ FastAPI + YOLO/ByteTrack + SQLite. Runs fully local; **no API key needed**.
   Render disk and set `NEMESIS_DATA_DIR` to its mount path.
 - **Vercel frontend:** set the project root to this directory and the environment variable
   `NEMESIS_API_BASE_URL` to the Render service origin (for example
-  `https://nemesis-x.onrender.com`). Vercel builds the static site with `npm run build`.
+  `https://nemesis-x.onrender.com`) for local builds. Vercel builds use same-origin `/api/*`
+  requests and the rewrite in `vercel.json` proxies them to Render, avoiding browser CORS failures.
+  Vercel builds the static site with `npm run build`.
   The Python dependency manifest is named `requirements-render.txt` so Vercel does not auto-detect
   and bundle the FastAPI backend; Render installs it explicitly. `.vercelignore` also excludes
-  backend files from CLI deployments. The frontend uses this URL for API calls, video playback,
-  and evidence links.
+  backend files from CLI deployments. API calls, video playback, and evidence links use the
+  same-origin proxy on Vercel.
 - The backend runs CPU inference on Render. Choose an instance with enough memory for PyTorch
   and video processing; the free tier may not have sufficient resources for analysis.
 - The API currently has no authentication. CORS only restricts browser-origin access; it does not
