@@ -10,7 +10,7 @@ FastAPI + YOLO/ByteTrack + SQLite. Runs fully local; **no API key needed**.
    ```
    python -m venv .venv
    # Windows: .venv\Scripts\activate      Ubuntu: source .venv/bin/activate
-   pip install -r requirements.txt
+   pip install -r requirements-render.txt
    uvicorn app.main:app --port 8000
    ```
 4. Open http://localhost:8000 (first analysis downloads the YOLO weights, so it needs internet once).
@@ -25,9 +25,10 @@ FastAPI + YOLO/ByteTrack + SQLite. Runs fully local; **no API key needed**.
 - **Vercel frontend:** set the project root to this directory and the environment variable
   `NEMESIS_API_BASE_URL` to the Render service origin (for example
   `https://nemesis-x.onrender.com`). Vercel builds the static site with `npm run build`.
-  `.vercelignore` excludes the FastAPI backend and its ML dependencies so Vercel serves only
-  the frontend; Render still builds the backend from the full repository. The frontend uses this
-  URL for API calls, video playback, and evidence links.
+  The Python dependency manifest is named `requirements-render.txt` so Vercel does not auto-detect
+  and bundle the FastAPI backend; Render installs it explicitly. `.vercelignore` also excludes
+  backend files from CLI deployments. The frontend uses this URL for API calls, video playback,
+  and evidence links.
 - The backend runs CPU inference on Render. Choose an instance with enough memory for PyTorch
   and video processing; the free tier may not have sufficient resources for analysis.
 - The API currently has no authentication. CORS only restricts browser-origin access; it does not

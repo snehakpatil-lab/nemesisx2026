@@ -2,6 +2,7 @@ app/
 tests/
 data/
 requirements.txt
+requirements-render.txt
 yolov8n.pt
 render.yaml
 .venv/
