@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>NEMESIS-X</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{--bg:#05070B;--p:rgba(14,20,32,.62);--b:rgba(0,229,255,.18);--c:#00E5FF;--v:#8257FF;--a:#FFB547;--r:#FF3B55;--t:#E6F1F7;--m:#7C8CA0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--t);font:13px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif;overflow:hidden}
+body.alt{--c:#8257FF;--b:rgba(130,87,255,.28)}
+#bg{position:fixed;inset:0;z-index:0}
+.grid{position:fixed;inset:0;z-index:0;background-image:linear-gradient(var(--b) 1px,transparent 1px),linear-gradient(90deg,var(--b) 1px,transparent 1px);background-size:56px 56px;opacity:.16;animation:g 14s linear infinite;mask-image:radial-gradient(circle at 50% 30%,#000,transparent 75%)}
+@keyframes g{to{background-position:56px 56px}}
+#intro{position:fixed;inset:0;z-index:99;background:#000;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center}
+#intro canvas{position:absolute;inset:0}
+#it{position:relative;margin-top:150px;opacity:0}
+#it h1{font:200 52px/1 "Segoe UI",system-ui,sans-serif;letter-spacing:.5em;margin:0 0 12px;color:var(--c);text-shadow:0 0 24px rgba(0,229,255,.5)}
+#it p{letter-spacing:.3em;font-size:11px;color:var(--m);margin:0}
+#scan{position:absolute;left:0;right:0;height:2px;background:var(--c);box-shadow:0 0 30px var(--c);top:-5px;opacity:0}
+button{font:inherit;color:var(--t);background:rgba(0,229,255,.06);border:1px solid var(--b);border-radius:6px;padding:6px 12px;cursor:pointer}
+button:hover{border-color:var(--c);box-shadow:0 0 12px rgba(0,229,255,.25)}
+button:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+#skip{position:absolute;right:24px;bottom:24px;letter-spacing:.2em;font-size:11px}
+#app{position:relative;z-index:1;height:100%;display:grid;grid-template-rows:52px 1fr;opacity:0}
+#top{display:flex;align-items:center;gap:16px;padding:0 16px;border-bottom:1px solid var(--b);background:var(--p);backdrop-filter:blur(14px)}
+.brand{letter-spacing:.35em;font-weight:600;color:var(--c)}
+.pill{border:1px solid var(--b);border-radius:20px;padding:2px 10px;font-size:11px;color:var(--m);white-space:nowrap}
+.pill i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--m);margin-right:6px}
+.pill.ok i{background:#3DDC97}.pill.bad i{background:var(--a)}
+.sp{flex:1}
+#main{display:flex;min-height:0}
+#side{width:216px;transition:width .3s;border-right:1px solid var(--b);background:var(--p);backdrop-filter:blur(14px);padding:10px 8px;overflow:hidden;flex:none}
+#side.col{width:58px}
+.nav{position:relative;display:flex;gap:12px;align-items:center;padding:9px 12px;border-radius:6px;color:var(--m);cursor:pointer;white-space:nowrap;margin-bottom:2px;transition:.25s}
+.nav b{width:18px;text-align:center;font-weight:400;flex:none}
+.nav:hover{color:var(--t)}
+.nav.on{color:var(--c);background:linear-gradient(90deg,rgba(0,229,255,.14),transparent);box-shadow:inset 2px 0 var(--c)}
+#view{flex:1;overflow:auto;padding:20px 24px;min-width:0}
+.v{display:none}.v.on{display:block}
+h2{font-weight:300;letter-spacing:.2em;margin:0 0 4px;font-size:20px}
+.sub{color:var(--m);margin-bottom:16px;max-width:820px}
+.g{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.card{background:var(--p);border:1px solid var(--b);border-radius:10px;padding:14px;backdrop-filter:blur(12px);position:relative;min-width:0}
+.card h3{margin:0 0 8px;font-size:11px;letter-spacing:.22em;color:var(--c);font-weight:600}
+.empty{color:var(--m);border:1px dashed rgba(124,140,160,.3);border-radius:8px;padding:14px;text-align:center;font-size:12px}
+.empty em{display:block;font-style:normal;color:var(--a);letter-spacing:.2em;font-size:10px;margin-bottom:4px}
+.stat{font:200 30px/1.1 "Segoe UI",system-ui,sans-serif;color:var(--t)}
+.stat small{display:block;font:11px system-ui;color:var(--m);letter-spacing:.15em;margin-top:4px}
+.wide{grid-column:1/-1}
+.sc{height:300px;border-radius:8px;overflow:hidden;background:#03050a;position:relative}
+.sc canvas{display:block;width:100%;height:100%}
+.sc .empty{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(5,7,11,.8);max-width:80%}
+#tl{height:70px;position:relative;border-top:1px solid var(--b);margin-top:8px}
+#tl span{position:absolute;top:6px;font-size:10px;color:var(--m);transform:translateX(-50%)}
+#tl span:before{content:"";position:absolute;left:50%;top:-8px;height:6px;border-left:1px solid var(--b)}
+#ws{display:grid;grid-template-columns:230px minmax(0,1fr) 260px;gap:14px}
+@media(max-width:1100px){#ws{grid-template-columns:1fr}}
+#drop{border:1px dashed var(--b);border-radius:8px;padding:18px 8px;text-align:center;color:var(--m);cursor:pointer}
+#drop.h{border-color:var(--c);background:rgba(0,229,255,.06)}
+.stage{position:relative;background:#000;border-radius:8px;aspect-ratio:16/9;overflow:hidden;border:1px solid var(--b)}
+.stage video,.stage canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.stage canvas{pointer-events:none}
+.stage .empty{position:absolute;inset:0;margin:auto;height:fit-content;width:fit-content;background:none;border:0}
+.ctl{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:10px}
+input[type=range]{flex:1;min-width:120px;accent-color:var(--c)}
+select{background:#0a0f18;color:var(--t);border:1px solid var(--b);border-radius:6px;padding:5px}
+#log{font:11px ui-monospace,Consolas,monospace;color:var(--m);max-height:130px;overflow:auto}
+#ai{position:fixed;right:0;top:52px;bottom:0;width:340px;z-index:5;transform:translateX(100%);transition:transform .35s;background:rgba(8,12,20,.94);border-left:1px solid var(--b);backdrop-filter:blur(16px);padding:14px;display:flex;flex-direction:column;gap:10px}
+#ai.on{transform:none}
+#msgs{flex:1;overflow:auto;display:flex;flex-direction:column;gap:8px}
+.m{padding:8px 10px;border-radius:8px;border:1px solid var(--b)}.m.u{background:rgba(0,229,255,.08)}.m.s{border-color:rgba(255,181,71,.35);color:var(--a)}
+input[type=text]{width:100%;background:#0a0f18;color:var(--t);border:1px solid var(--b);border-radius:6px;padding:8px}
+.tag{display:inline-block;font-size:10px;letter-spacing:.12em;padding:1px 7px;border-radius:4px;border:1px solid;margin-right:4px}
+@media (prefers-reduced-motion:reduce){.grid{animation:none}}
+</style></head><body>
+<div class="grid"></div><canvas id="bg"></canvas>
+
+<div id="intro"><canvas id="ic"></canvas><div id="scan"></div>
+<div id="it"><h1>NEMESIS-X</h1><p>UNDERSTANDING EVENTS THAT HAVE NEVER BEEN SEEN BEFORE</p></div>
+<button id="skip">SKIP INTRO ›</button></div>
+
+<div id="app">
+<header id="top"><button id="tg" title="Collapse sidebar">☰</button><span class="brand">NEMESIS-X</span>
+<span class="pill" id="pb"><i></i>BACKEND: CHECKING</span>
+<span class="pill" id="ps"><i></i>PROCESSING: IDLE</span>
+<span class="pill" id="pv">SESSION: NO VIDEO</span>
+<span class="pill" id="pg">GPU: UNAVAILABLE</span>
+<span class="sp"></span>
+<button id="th">Accent</button><button id="pdf" disabled title="Select a processed video to download a PDF report">PDF Report</button><button id="ab">Evidence Q&A</button><button id="st" data-go="config">Settings</button></header>
+<div id="main"><nav id="side"></nav><main id="view"></main></div>
+<aside id="ai"><h3 style="margin:0;color:var(--c);letter-spacing:.2em;font-size:11px">EVIDENCE Q&A</h3>
+<div id="msgs"><div class="m s">Answers summarize stored detections and motion cues from the selected video. Motion outliers are review clues, not confirmed incidents.</div></div>
+<input type="text" id="q" placeholder="What happened during this video?"></aside>
+</div>
+
+<script src="/runtime-config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+const $=(s,r=document)=>r.querySelector(s);
+const API_BASE_URL=String(window.NEMESIS_API_BASE_URL||'').replace(/\/+$/,'');
+const apiUrl=path=>`${API_BASE_URL}${path}`;
+const S={video:null,log:[],backendOnline:false,pollTimer:null,lastDetectionFetch:0,detectionRequest:0,memoryOffset:0,spatialData:null};
+const E=(t,d)=>`<div class="empty"><em>${t}</em>${d||''}</div>`;
+const NO=(d)=>E('NO DATA',d||'Awaiting backend processing.');
+
+/* ---------- Intro ---------- */
+(function(){
+ const c=$('#ic'),x=c.getContext('2d');let W,H,pts=[],t0=performance.now(),done=false;
+ const rs=()=>{W=c.width=innerWidth;H=c.height=innerHeight};rs();addEventListener('resize',rs);
+ for(let i=0;i<110;i++)pts.push({x:Math.random(),y:Math.random(),s:Math.random()*2.2,d:Math.random()*1800});
+ function hex(cx,cy,r,a){x.beginPath();for(let i=0;i<6;i++){const q=Math.PI/3*i-Math.PI/2;x[i?'lineTo':'moveTo'](cx+r*Math.cos(q),cy+r*Math.sin(q))}x.closePath();x.globalAlpha=a;x.stroke()}
+ function f(){if(done)return;const t=performance.now()-t0;x.clearRect(0,0,W,H);
+  const cx=W/2,cy=H/2-20,k=Math.min(1,Math.max(0,(t-1500)/1500));
+  pts.forEach(p=>{const a=Math.min(1,Math.max(0,(t-p.d)/600));const px=p.x*W+(cx-p.x*W)*k*.55,py=p.y*H+(cy-p.y*H)*k*.55;p.px=px;p.py=py;x.fillStyle='#00E5FF';x.globalAlpha=a*.8;x.beginPath();x.arc(px,py,p.s,0,7);x.fill()});
+  if(t>900){x.strokeStyle='#00E5FF';x.lineWidth=.6;for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const d=Math.hypot(pts[i].px-pts[j].px,pts[i].py-pts[j].py);if(d<95){x.globalAlpha=(1-d/95)*.35*Math.min(1,(t-900)/800);x.beginPath();x.moveTo(pts[i].px,pts[i].py);x.lineTo(pts[j].px,pts[j].py);x.stroke()}}}
+  if(t>2300){const a=Math.min(1,(t-2300)/900);x.strokeStyle='#00E5FF';x.lineWidth=1.5;x.shadowColor='#00E5FF';x.shadowBlur=18;hex(cx,cy,60,a);hex(cx,cy,38,a*.7);x.beginPath();x.moveTo(cx,cy-24);x.lineTo(cx+22,cy+14);x.lineTo(cx-22,cy+14);x.closePath();x.globalAlpha=a;x.strokeStyle='#8257FF';x.stroke();x.shadowBlur=0}
+  requestAnimationFrame(f)}
+ f();
+ gsap.to('#it',{opacity:1,duration:1,delay:3});
+ gsap.fromTo('#scan',{top:-5,opacity:1},{top:'105%',duration:1.6,delay:3.4,ease:'power1.inOut'});
+ function end(){if(done)return;done=true;gsap.to('#intro',{opacity:0,duration:.7,onComplete:()=>$('#intro').remove()});gsap.to('#app',{opacity:1,duration:.9});}
+ $('#skip').onclick=end;setTimeout(end,5600);
+})();
+
+/* ---------- Navigation / views ---------- */
+const NAV=[['overview','Overview','◈'],['video','Video Analysis','▶'],['events','Event Intelligence','⌬'],['tracking','Object Tracking','◎'],['memory','Temporal Memory','∞'],['spatial','Spatial Intelligence','⬡'],['anomaly','Anomaly Detection','△'],['evidence','Evidence Explorer','▣'],['config','System Configuration','⚙']];
+const INFO={
+ events:['Event Intelligence','Combines observations across time into event candidates. No conclusions are predefined.',[['EVENT RECORDS','Event ID · start/end · objects · identities · location · interactions · anomaly score · confidence · evidence'],['EVENT RELATIONSHIP GRAPH','Appears → moves → interacts → behaviour changes → candidate. Illustrative structure only; nothing is classified as criminal or dangerous.']]],
+ tracking:['Object Tracking','Persistent IDs, trails, re-identification, appearance timestamps and track confidence.',[['TRACK LIST','Populated by the multi-object tracker.'],['TRACK PROFILE','Click a track to open its movement history.']]],
+ memory:['Temporal Memory','What happened before, what is happening now, and how observations relate.',[['MEMORY GRAPH','Previous and current observations, state transitions, repeated interactions.'],['CHRONOLOGICAL NAVIGATOR','Step through stored observations in order.']]],
+ anomaly:['Anomaly Detection','Every candidate must carry evidence. A score is never proof of wrongdoing.',[['STATISTICAL ANOMALIES','Deviations from observed temporal patterns.'],['MODEL-GENERATED CANDIDATES','Flagged by a model, not verified.'],['HUMAN-VERIFIED EVENTS','Confirmed by a reviewer.']]],
+ evidence:['Evidence Explorer','Every explanation must trace to real video: references, timestamps, extracted frames, tracks, reasoning and limitations.',[['EVIDENCE ITEMS','Selecting one will seek the player to its timestamp.'],['REASONING & LIMITATIONS','Explanation plus uncertainty for each event.']]],
+ config:['System Configuration','Model, device and pipeline options are read from the backend configuration.',[['DEVICE','CUDA / CPU selection is reported by the backend.'],['DETECTION & TRACKING MODELS','Reported by the backend once connected.']]]
+};
+const side=$('#side'),view=$('#view');
+NAV.forEach(([id,l,i])=>{side.insertAdjacentHTML('beforeend',`<div class="nav" data-go="${id}"><b>${i}</b><span>${l}</span></div>`);});
+const V={};
+V.overview=`<h2>OVERVIEW</h2><div class="sub">Command-center summary for backend-processed videos.</div>
+<div class="g"><div class="card"><div class="stat" id="ovvideos">0<small>VIDEOS PROCESSED</small></div></div>
+<div class="card"><div class="stat" id="ovd">—<small>LOADED VIDEO DURATION</small></div></div>
+<div class="card"><div class="stat" id="ovdet">—<small>TRACKED DETECTIONS</small></div></div>
+<div class="card"><div class="stat" id="ovtracks">—<small>TRACK IDS</small></div></div>
+<div class="card wide"><h3>TRACK TRAJECTORIES · IMAGE PLANE</h3><div id="spatial-overview-summary" class="sub">Select a processed video to load trajectories.</div><div class="sc" id="sc1"><canvas id="spatial-canvas-overview"></canvas><div class="empty" id="spatial-empty-overview"><em>NO TRAJECTORIES</em>Select a processed video.</div></div></div>
+<div class="card wide"><h3>TEMPORAL EVENT TIMELINE</h3><div id="tl"></div><div id="tle">${NO('Event generation is not implemented by the backend.')}</div></div>
+<div class="card wide"><h3>SYSTEM PERFORMANCE</h3><div class="g">
+<div class="empty"><em id="sys-cpu">LOADING</em>CPU UTILIZATION</div>
+<div class="empty"><em id="sys-gpu">LOADING</em>GPU</div>
+<div class="empty"><em id="sys-vram">LOADING</em>VRAM</div>
+<div class="empty"><em id="sys-ram">LOADING</em>RAM USED / TOTAL</div>
+<div class="empty"><em id="sys-fps">LOADING</em>PROCESSING FPS</div>
+</div><div id="system-performance-status" class="sub" style="margin:8px 0 0">Reading live metrics from the local backend.</div></div></div>`;
+V.video=`<h2>VIDEO ANALYSIS</h2><div class="sub">Long videos are sampled at up to 700 frames by default to keep CPU analysis fast. The effective stride is shown after analysis; events between samples may be missed.</div>
+<div id="ws"><div class="card"><h3>INPUT</h3><div id="drop">Drop MP4 / AVI / MOV here<br>or click to browse</div><input id="fi" type="file" accept=".mp4,.avi,.mov,video/*" hidden>
+<h3 style="margin-top:16px">LIBRARY</h3><div id="lib">${NO('No videos uploaded yet.')}</div>
+<h3 style="margin-top:16px">ANALYSIS</h3><div id="analysis-status" class="sub" style="margin:0 0 8px">Choose a video to upload it to the backend.</div><button id="analyze" disabled style="width:100%">Run analysis</button></div>
+<div class="card"><div class="stage"><video id="vp" playsinline crossorigin="anonymous"></video><canvas id="ov"></canvas><div class="empty" id="ve"><em>NO VIDEO LOADED</em>Load a file to begin.</div></div>
+<div class="ctl"><button id="pp">Play</button><button id="fb">◂ Frame</button><button id="ff">Frame ▸</button>
+<input type="range" id="sk" min="0" max="1000" value="0"><span id="tm">0:00.00 / 0:00.00</span>
+<select id="sp"><option>0.25</option><option>0.5</option><option selected>1</option><option>1.5</option><option>2</option></select><button id="ss">Screenshot</button></div>
+<div class="sub" style="margin:8px 0 0;font-size:11px">Detection boxes and track IDs follow the current playback frame.</div></div>
+<div><div class="card"><h3>DETECTIONS</h3><div id="detection-data">${NO('Select a processed video to view detections.')}</div><div id="current-frame-data" class="sub" style="margin:8px 0 0">Current frame detections will appear here.</div></div>
+<div class="card" style="margin-top:14px"><h3>IDENTITIES / TRACK IDS</h3><div id="track-data">${NO('Select a processed video to view track IDs.')}</div></div>
+<div class="card" style="margin-top:14px"><h3>TRACK EVENTS</h3><div id="event-data">${NO('Select a processed video to view track observation events.')}</div></div>
+<div class="card" style="margin-top:14px"><h3>PROCESSING LOG</h3><div id="log"></div></div></div></div>`;
+V.spatial=`<h2>SPATIAL INTELLIGENCE</h2><div class="sub">Observed track centers in source-image pixels. This is a 2D image plane, not metric 3D or real-world coordinates.</div>
+<div class="card"><div id="spatial-summary" class="sub">Select a processed video to load trajectories.</div><div class="sc" id="sc2" style="height:460px"><canvas id="spatial-canvas"></canvas><div class="empty" id="spatial-empty"><em>NO TRAJECTORIES</em>Select a processed video.</div></div><div id="spatial-legend" class="g" style="margin-top:12px"></div></div>`;
+Object.keys(INFO).forEach(k=>{const[t,d,cs]=INFO[k];V[k]=`<h2>${t.toUpperCase()}</h2><div class="sub">${d}</div><div class="g">${cs.map(([a,b])=>`<div class="card"><h3>${a}</h3>${NO(b)}</div>`).join('')}</div>`});
+V.evidence=`<h2>EVIDENCE EXPLORER</h2><div class="sub">Browse stored detections and track observations. Every item links to timestamps and source-video frames; observation summaries are not event conclusions.</div>
+<div class="card"><h3>EVIDENCE ITEMS</h3><div id="evidence-summary" class="sub">Select a processed video to load evidence.</div><div id="evidence-items">${NO('Select a processed video to load evidence.')}</div><div id="evidence-pagination"></div></div>
+<div class="card" style="margin-top:14px"><h3>REASONING & LIMITATIONS</h3><div id="evidence-reasoning" class="sub">Reasoning is based on stored detector observations only.</div><div id="evidence-limitations"></div></div>`;
+V.config=`<h2>SYSTEM CONFIGURATION</h2><div class="sub">Live backend configuration and runtime values. CPU inference is a valid device state; CUDA details appear only when available.</div>
+<div class="g"><div class="card"><h3>DEVICE</h3><div id="config-device" class="sub">Loading backend configuration…</div></div>
+<div class="card"><h3>DETECTION MODEL</h3><div id="config-detector" class="sub">Loading backend configuration…</div></div>
+<div class="card"><h3>TRACKING MODEL</h3><div id="config-tracker" class="sub">Loading backend configuration…</div></div>
+<div class="card"><h3>PIPELINE SETTINGS</h3><div id="config-pipeline" class="sub">Loading backend configuration…</div></div>
+<div class="card wide"><h3>RUNTIME & LIVE STATUS</h3><div id="config-runtime" class="sub">Loading backend configuration…</div><div id="config-live" class="sub"></div></div></div>`;
+V.tracking=`<h2>OBJECT TRACKING</h2><div class="sub">ByteTrack track IDs and observations for the currently selected video. IDs are not cross-video identities.</div><div class="card"><div id="tracking-results">${NO('Select a processed video to view track data.')}</div></div>`;
+V.events=`<h2>TRACK EVENT TIMELINE</h2><div class="sub">Evidence-backed track boundaries: when a track was first and last observed. These are observation events, not incident or activity classifications.</div><div class="card"><div id="events-page-results">${NO('Select a processed video to view track event markers.')}</div></div>`;
+V.memory=`<h2>TEMPORAL MEMORY</h2><div class="sub">Track intervals and timestamped detections stored by the backend. Select a row to jump to its video time.</div>
+<div class="card"><h3>MEMORY GRAPH · TRACK LIFESPANS</h3><div id="memory-summary">${NO('Select a processed video to load temporal memory.')}</div><div id="memory-graph"></div></div>
+<div class="card" style="margin-top:14px"><h3>CHRONOLOGICAL NAVIGATOR</h3><div id="memory-navigator">${NO('Select a processed video to browse observations.')}</div><div id="memory-pagination"></div></div>`;
+V.anomaly=`<h2>ANOMALY REVIEW</h2><div class="sub">Exploratory statistical and unsupervised candidates use image-plane track data. Small track cohorts can produce unstable flags. These are review signals, not proof of unusual or harmful activity.</div>
+<div class="card"><h3>STATISTICAL OUTLIERS</h3><div id="anomaly-method" class="sub">Select a processed video.</div><div id="statistical-anomalies">${NO('Select a processed video to calculate statistical outliers.')}</div></div>
+<div class="card" style="margin-top:14px"><h3>MODEL-GENERATED CANDIDATES</h3><div id="model-candidates">${NO('No separate anomaly model is configured.')}</div></div>
+<div class="card" style="margin-top:14px"><h3>HUMAN REVIEW &amp; DECISIONS</h3><div id="human-reviewed">${NO('No candidates are available to review yet.')}</div></div>`;
+NAV.forEach(([id])=>view.insertAdjacentHTML('beforeend',`<section class="v" id="v-${id}">${V[id]}</section>`));
+
+function go(id){document.querySelectorAll('.v').forEach(e=>e.classList.toggle('on',e.id==='v-'+id));
+ document.querySelectorAll('.nav').forEach(e=>e.classList.toggle('on',e.dataset.go===id));
+ if(S.spatialData&&(id==='overview'||id==='spatial'))renderSpatialPlots(S.spatialData);
+ if(id==='config')loadConfiguration();
+ gsap.fromTo('#v-'+id,{opacity:0,y:10},{opacity:1,y:0,duration:.4});}
+document.addEventListener('click',e=>{const n=e.target.closest('[data-go]');if(n)go(n.dataset.go)});
+document.addEventListener('click',e=>{
+ const marker=e.target.closest('[data-event-time]');
+ if(!marker)return;
+ go('video');vp.currentTime=Number(marker.dataset.eventTime);vp.pause();loadFrameDetections(true);
+});
+document.addEventListener('click',e=>{
+ const page=e.target.closest('[data-memory-offset]');
+ if(page&&S.video)loadMemoryData(S.video.id,Number(page.dataset.memoryOffset));
+ const evidencePage=e.target.closest('[data-evidence-offset]');
+ if(evidencePage&&S.video)loadEvidenceData(S.video.id,Number(evidencePage.dataset.evidenceOffset));
+ const marker=e.target.closest('[data-memory-time]');
+ if(marker&&S.video){go('video');vp.currentTime=Number(marker.dataset.memoryTime);vp.pause();loadFrameDetections(true)}
+});
+document.addEventListener('click',async e=>{
+ const button=e.target.closest('[data-anomaly-review]');
+ if(!button||!S.video||!S.video.id)return;
+ button.disabled=true;
+ try{
+  const response=await fetch(apiUrl(`/api/videos/${S.video.id}/anomalies/${encodeURIComponent(button.dataset.anomalyReview)}/review`),{
+   method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({status:button.dataset.reviewStatus})
+  });
+  const result=await response.json();
+  if(!response.ok)throw new Error(result.detail||'Could not save review.');
+  await loadAnomalyData(S.video.id);
+ }catch(error){$('#anomaly-method').textContent='Review update failed: '+error.message;button.disabled=false}
+});
+$('#tg').onclick=()=>side.classList.toggle('col');
+$('#th').onclick=()=>document.body.classList.toggle('alt');
+const pdfButton=$('#pdf');
+pdfButton.onclick=async()=>{
+ if(!S.video||!S.video.id)return;
+ const videoId=S.video.id;
+ pdfButton.disabled=true;
+ try{
+  const response=await fetch(apiUrl(`/api/videos/${videoId}/report.pdf`));
+  if(!response.ok){
+   let detail='Could not generate the PDF report.';
+   try{const result=await response.json();detail=result.detail||detail}catch{}
+   throw new Error(detail);
+  }
+  const blob=await response.blob();
+  if(blob.type!=='application/pdf'||!blob.size)throw new Error('The backend returned an invalid PDF report.');
+  const url=URL.createObjectURL(blob),link=document.createElement('a');
+  link.href=url;link.download=`nemesis-x-video-${videoId}-report.pdf`;
+  document.body.appendChild(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  log(`Downloaded PDF report for video #${videoId}.`);
+ }catch(error){log(`PDF report download failed: ${error.message}`)}
+ finally{pdfButton.disabled=!(S.video&&S.video.id&&S.video.status==='done')}
+};
+$('#ab').onclick=()=>$('#ai').classList.toggle('on');
+$('#q').onkeydown=async e=>{
+ if(e.key!=='Enter'||!e.target.value.trim()||e.target.disabled)return;
+ e.preventDefault();
+ const input=e.target,question=input.value.trim(),messages=$('#msgs');
+ const user=document.createElement('div');user.className='m u';user.textContent=question;messages.appendChild(user);
+ const reply=document.createElement('div');reply.className='m s';reply.textContent='Checking stored observations…';messages.appendChild(reply);
+ input.value='';input.disabled=true;messages.scrollTop=messages.scrollHeight;
+ try{
+  const response=await fetch(apiUrl('/api/chat'),{method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({question:question,video_id:S.video&&S.video.id?S.video.id:null})});
+  const result=await response.json();
+  if(!response.ok)throw new Error(result.detail||'Evidence query failed.');
+  reply.textContent=result.answer;
+  (result.evidence||[]).forEach(item=>{
+   const marker=document.createElement('button');marker.type='button';marker.dataset.eventTime=String(item.start);
+   marker.textContent=`Evidence · video #${item.video_id} · track #${item.track} · ${fmt(item.start)}–${fmt(item.end)}`;
+   messages.appendChild(marker);
+  });
+ }catch(error){reply.textContent='Could not query evidence: '+error.message}
+ finally{input.disabled=false;input.focus();messages.scrollTop=messages.scrollHeight}
+};
+
+/* ---------- Logging / status ---------- */
+function log(s){S.log.push(s);$('#log').insertAdjacentHTML('beforeend',`<div>[${new Date().toLocaleTimeString()}] ${s}</div>`)}
+const fmt=t=>{t=t||0;return Math.floor(t/60)+':'+(t%60).toFixed(2).padStart(5,'0')};
+const analyzeButton=$('#analyze');
+function setAnalysisStatus(message){$('#analysis-status').textContent=message}
+function escapeHtml(value){return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function loadSystemPerformance(){
+ try{
+  const response=await fetch(apiUrl('/api/system'));
+  const metrics=await response.json();
+  if(!response.ok)throw new Error(metrics.detail||'System metrics request failed.');
+  $('#sys-cpu').textContent=Number.isFinite(metrics.cpu_percent)?`${metrics.cpu_percent.toFixed(0)}%`:'N/A';
+  $('#sys-gpu').textContent=metrics.cuda_available
+   ?(metrics.gpu?`${metrics.gpu.name} · ${metrics.gpu.util_percent}%`:'CUDA ACTIVE')
+   :'CPU ONLY';
+  $('#sys-vram').textContent=metrics.gpu
+   ?`${metrics.gpu.vram_used_gb.toFixed(1)} / ${metrics.gpu.vram_total_gb.toFixed(1)} GB`
+   :metrics.cuda_available?'TELEMETRY N/A':'N/A · CPU MODE';
+  $('#sys-ram').textContent=`${metrics.ram_used_gb.toFixed(1)} / ${metrics.ram_total_gb.toFixed(1)} GB`;
+  $('#sys-fps').textContent=metrics.processing_state==='running'
+   ?`${Number(metrics.processing_fps).toFixed(1)} FPS`
+   :metrics.processing_state==='starting'?'STARTING':'IDLE';
+  $('#system-performance-status').textContent=metrics.cuda_available
+   ?`Device ${metrics.device} · GPU telemetry ${metrics.gpu_telemetry_status}.`
+   :'CPU inference active; no CUDA GPU detected. RAM is system-wide; FPS appears during active analysis.';
+ }catch(error){
+  ['#sys-cpu','#sys-gpu','#sys-vram','#sys-ram','#sys-fps'].forEach(selector=>$(selector).textContent='ERROR');
+  $('#system-performance-status').textContent='Live system metrics unavailable: '+error.message;
+ }
+}
+function renderLibrary(videos){
+ $('#ovvideos').innerHTML=`${videos.filter(video=>video.status==='done').length}<small>VIDEOS PROCESSED</small>`;
+ if(!videos.length){$('#lib').innerHTML=NO('No videos uploaded yet.');return}
+ $('#lib').innerHTML=videos.map(v=>`<button type="button" data-video-id="${Number(v.id)}" style="display:block;width:100%;margin-bottom:5px;text-align:left;overflow:hidden;text-overflow:ellipsis">#${Number(v.id)} · ${escapeHtml(v.name)} · ${escapeHtml(v.status)}${v.status==='processing'?` · ${Math.round((v.progress||0)*100)}%`:''}${v.status==='done'&&v.analysis_stride?` · sampled 1/${v.analysis_stride} frames`:''}</button>`).join('');
+}
+async function loadLibrary(){
+ const response=await fetch(apiUrl('/api/videos'));
+ if(!response.ok)throw new Error('Could not load the backend video library.');
+ const videos=await response.json();renderLibrary(videos);
+ if(!S.video){const latestDone=videos.find(video=>video.status==='done');if(latestDone)await selectVideo(latestDone.id)}
+}
+loadSystemPerformance();setInterval(loadSystemPerformance,2500);
+fetch(apiUrl('/api/health')).then(r=>{if(!r.ok)throw new Error('health request failed');S.backendOnline=true;$('#pb').className='pill ok';$('#pb').innerHTML='<i></i>BACKEND: ONLINE';analyzeButton.disabled=!S.video||!S.video.id;return loadLibrary()}).catch(()=>{$('#pb').className='pill bad';$('#pb').innerHTML='<i></i>BACKEND: OFFLINE';log('Backend /api/health or video library unavailable. Analysis disabled.')});
+
+/* ---------- Video workspace (real local playback) ---------- */
+const vp=$('#vp'),drop=$('#drop'),fi=$('#fi');
+$('#lib').addEventListener('click',e=>{
+ const item=e.target.closest('[data-video-id]');
+ if(item)selectVideo(Number(item.dataset.videoId));
+});
+drop.onclick=()=>fi.click();fi.onchange=()=>load(fi.files[0]);
+drop.ondragover=e=>{e.preventDefault();drop.classList.add('h')};drop.ondragleave=()=>drop.classList.remove('h');
+drop.ondrop=e=>{e.preventDefault();drop.classList.remove('h');load(e.dataTransfer.files[0])};
+async function load(f){if(!f)return;if(!f.type.startsWith('video/')){log('Rejected non-video file: '+f.name);return}
+ if(S.video&&S.video.url)URL.revokeObjectURL(S.video.url);
+ if(S.pollTimer){clearTimeout(S.pollTimer);S.pollTimer=null}
+ const video={name:f.name,file:f,url:URL.createObjectURL(f)};S.video=video;
+ vp.src=video.url;pdfButton.disabled=true;analyzeButton.disabled=true;analyzeButton.textContent='Run analysis';setAnalysisStatus('Uploading video to backend…');$('#ve').style.display='none';clearAnalysisData();
+ $('#lib').innerHTML=`<div class="pill" style="display:block;overflow:hidden;text-overflow:ellipsis">${f.name.replace(/</g,'&lt;')}</div>`;
+ $('#pv').textContent='SESSION: '+f.name;log('Loaded '+f.name+' ('+(f.size/1048576).toFixed(1)+' MB). Uploading to backend…');
+ try{
+  const form=new FormData();form.append('file',f);
+  const response=await fetch(apiUrl('/api/videos'),{method:'POST',body:form});
+  const result=await response.json();
+  if(!response.ok)throw new Error(result.detail||'Video upload failed.');
+  if(S.video!==video)return;
+  video.id=result.id;analyzeButton.disabled=!S.backendOnline;
+  setAnalysisStatus(S.backendOnline?'Video uploaded. Ready for analysis.':'Video uploaded, but backend health check failed.');
+  log('Uploaded video to backend as #'+video.id+'.');
+  loadLibrary().catch(error=>log('Could not refresh backend video library: '+error.message));
+ }catch(error){
+  if(S.video!==video)return;
+  setAnalysisStatus('Upload failed: '+error.message);log('Backend upload failed: '+error.message);
+ }
+}
+analyzeButton.onclick=async()=>{
+ const video=S.video;if(!video||!video.id||!S.backendOnline)return;
+ pdfButton.disabled=true;analyzeButton.disabled=true;setAnalysisStatus('Queueing analysis…');
+ try{
+  const response=await fetch(apiUrl(`/api/videos/${video.id}/analyze`),{method:'POST'});
+  const result=await response.json();
+  if(!response.ok)throw new Error(result.detail||'Could not start analysis.');
+  setAnalysisStatus('Analysis queued. Waiting for the pipeline…');log('Analysis queued for video #'+video.id+'.');
+  pollAnalysis(video.id);
+ }catch(error){
+  setAnalysisStatus('Analysis could not start: '+error.message);log('Analysis request failed: '+error.message);
+  analyzeButton.disabled=false;
+ }
+};
+async function pollAnalysis(id){
+ try{
+  const response=await fetch(apiUrl(`/api/videos/${id}`));
+  if(!response.ok)throw new Error('Could not read analysis status.');
+  const result=await response.json();
+  if(S.video&&S.video.id===id){S.video.fps=result.fps;S.video.analysis_stride=result.analysis_stride;S.video.status=result.status}
+  loadLibrary().catch(error=>log('Could not refresh backend video library: '+error.message));
+  if(S.video&&S.video.id===id){
+   if(result.status==='done'){
+    pdfButton.disabled=false;
+    setAnalysisStatus('Analysis complete. Loading detections…');
+    await renderAnalysisData(id);setAnalysisStatus(`Analysis complete. Results loaded; sampled 1/${result.analysis_stride||1} source frames.`);analyzeButton.disabled=false;loadFrameDetections(true);log('Analysis complete for video #'+id+'.');return
+   }
+   if(result.status==='failed'){pdfButton.disabled=true;const reason=result.error||'Unknown pipeline error.';setAnalysisStatus('Analysis failed: '+reason);analyzeButton.disabled=false;log('Analysis failed: '+reason);return}
+   setAnalysisStatus(result.status==='processing'?`${result.stage||'Processing'} · ${Math.round((result.progress||0)*100)}%`:'Analysis queued. Waiting for the pipeline…');
+  }
+  S.pollTimer=setTimeout(()=>pollAnalysis(id),2000);
+ }catch(error){
+  if(S.video&&S.video.id===id){setAnalysisStatus('Status check failed: '+error.message);analyzeButton.disabled=false;log(error.message)}
+ }
+}
+async function selectVideo(id){
+ try{
+  const response=await fetch(apiUrl(`/api/videos/${id}`));
+  const video=await response.json();
+  if(!response.ok)throw new Error(video.detail||'Could not load video status.');
+  if(S.video&&S.video.url)URL.revokeObjectURL(S.video.url);
+  if(S.pollTimer){clearTimeout(S.pollTimer);S.pollTimer=null}
+  S.video={id:video.id,name:video.name,duration:video.duration,fps:video.fps,analysis_stride:video.analysis_stride,status:video.status};
+  vp.src=apiUrl(`/api/videos/${id}/file`);$('#ve').style.display='none';$('#pv').textContent='SESSION: '+video.name;
+  if(video.status==='done'){
+   pdfButton.disabled=false;
+   analyzeButton.textContent='Run analysis again';analyzeButton.disabled=false;
+   setAnalysisStatus('Analysis complete. Loading detections…');
+   await renderAnalysisData(id);setAnalysisStatus(`Analysis complete. Results loaded; sampled 1/${video.analysis_stride||1} source frames.`);loadFrameDetections(true);
+  }else if(video.status==='processing'){
+   pdfButton.disabled=true;
+   analyzeButton.disabled=true;setAnalysisStatus(`${video.stage||'Processing'} · ${Math.round((video.progress||0)*100)}%`);
+   pollAnalysis(id);
+  }else{
+   pdfButton.disabled=true;
+   analyzeButton.textContent='Run analysis';analyzeButton.disabled=!S.backendOnline;
+   setAnalysisStatus(video.status==='failed'?'Analysis failed: '+(video.error||'Unknown pipeline error.'):'Video uploaded. Ready for analysis.');
+   clearAnalysisData();
+  }
+  log('Selected backend video #'+id+'.');
+ }catch(error){setAnalysisStatus('Could not load video: '+error.message);log('Could not load video: '+error.message)}
+}
+function clearAnalysisData(){
+ $('#detection-data').innerHTML=NO('Run analysis to generate detections.');
+ $('#current-frame-data').textContent='Current frame detections will appear here.';
+ $('#track-data').innerHTML=NO('Run analysis to generate track IDs.');
+ $('#tracking-results').innerHTML=NO('Select a processed video to view track data.');
+ $('#event-data').innerHTML=NO('Select a processed video to view track observation events.');
+ $('#events-page-results').innerHTML=NO('Select a processed video to view track event markers.');
+ $('#tle').innerHTML=NO('No track event markers loaded.');
+ $('#memory-summary').innerHTML=NO('Select a processed video to load temporal memory.');
+ $('#memory-graph').innerHTML='';$('#memory-navigator').innerHTML=NO('Select a processed video to browse observations.');
+ $('#memory-pagination').innerHTML='';
+ $('#evidence-summary').textContent='Select a processed video to load evidence.';
+ $('#evidence-items').innerHTML=NO('Select a processed video to load evidence.');
+ $('#evidence-pagination').innerHTML='';
+ $('#evidence-reasoning').textContent='Reasoning is based on stored detector observations only.';
+ $('#evidence-limitations').innerHTML='';
+ $('#anomaly-method').textContent='Select a processed video.';
+ $('#statistical-anomalies').innerHTML=NO('Select a processed video to calculate statistical outliers.');
+ $('#model-candidates').innerHTML=NO('No separate anomaly model is configured.');
+ $('#human-reviewed').innerHTML=NO('No candidates have been reviewed yet.');
+ $('#ovdet').innerHTML='—<small>TRACKED DETECTIONS</small>';
+ $('#ovtracks').innerHTML='—<small>TRACK IDS</small>';
+ S.spatialData=null;
+ $('#spatial-overview-summary').textContent='Select a processed video to load trajectories.';
+ $('#spatial-summary').textContent='Select a processed video to load trajectories.';
+ $('#spatial-legend').innerHTML='';
+ $('#spatial-empty-overview').style.display='';$('#spatial-empty').style.display='';
+ ['#spatial-canvas-overview','#spatial-canvas'].forEach(selector=>{
+  const canvas=$(selector);canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+ });
+ const canvas=$('#ov');canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+}
+async function renderAnalysisData(id){
+ const [response,eventResponse,memoryResponse,spatialResponse,anomalyResponse,evidenceResponse]=await Promise.all([
+  fetch(apiUrl(`/api/videos/${id}/tracks`)),fetch(apiUrl(`/api/videos/${id}/events`)),
+  fetch(apiUrl(`/api/videos/${id}/memory?offset=0&limit=50`)),fetch(apiUrl(`/api/videos/${id}/spatial`)),
+  fetch(apiUrl(`/api/videos/${id}/anomalies`)),fetch(apiUrl(`/api/videos/${id}/evidence?offset=0&limit=30`))
+ ]);
+ if(!response.ok||!eventResponse.ok||!memoryResponse.ok||!spatialResponse.ok||!anomalyResponse.ok||!evidenceResponse.ok)throw new Error('Could not load detection, track, event, memory, spatial, anomaly, or evidence results.');
+ const [tracks,events,memoryData,spatialData,anomalyData,evidenceData]=await Promise.all([response.json(),eventResponse.json(),memoryResponse.json(),spatialResponse.json(),anomalyResponse.json(),evidenceResponse.json()]);
+ const total=tracks.reduce((sum,track)=>sum+track.n,0);
+ $('#ovdet').innerHTML=`${total.toLocaleString()}<small>TRACKED DETECTIONS</small>`;
+ $('#ovtracks').innerHTML=`${tracks.length.toLocaleString()}<small>TRACK IDS</small>`;
+ if(!tracks.length){
+  $('#detection-data').innerHTML=NO('Analysis completed, but no tracked detections were produced.');
+  $('#track-data').innerHTML=NO('No track IDs were produced.');
+  $('#tracking-results').innerHTML=NO('No track IDs were produced.');
+ }else{
+  const classes=tracks.reduce((groups,track)=>{
+   const group=groups[track.cls]||(groups[track.cls]={count:0,tracks:0});
+   group.count+=track.n;group.tracks++;return groups;
+  },{});
+  $('#detection-data').innerHTML=`<div class="stat">${total.toLocaleString()}<small>TRACKED DETECTIONS</small></div><div class="sub" style="margin:8px 0">${tracks.length.toLocaleString()} track IDs</div>`+
+   Object.entries(classes).sort((a,b)=>b[1].count-a[1].count).map(([name,value])=>`<div class="sub" style="margin:4px 0">${escapeHtml(name)}: ${value.count.toLocaleString()} detections · ${value.tracks} tracks</div>`).join('');
+  const rows=[...tracks].sort((a,b)=>b.n-a.n).slice(0,30);
+  const trackHtml=`<div class="sub">${tracks.length.toLocaleString()} track IDs · showing ${rows.length} with most observations. IDs are local to this video; cross-video re-identification is not implemented.</div>`+
+   `<div style="max-height:280px;overflow:auto">${rows.map(track=>`<div class="sub" style="margin:4px 0">#${track.id} ${escapeHtml(track.cls)} · ${track.n} observations · ${fmt(track.first_t)}–${fmt(track.last_t)} · ${Math.round(track.mean_conf*100)}% confidence</div>`).join('')}</div>`;
+  $('#track-data').innerHTML=trackHtml;$('#tracking-results').innerHTML=trackHtml;
+ }
+ renderTrackEvents(events);
+ renderMemoryData(memoryData);
+ renderSpatialPlots(spatialData);
+ renderAnomalies(anomalyData);
+ renderEvidenceData(evidenceData);
+}
+function renderTrackEvents(events){
+ if(!events.length){
+  const empty=NO('No track observation events are available for this video.');
+  $('#event-data').innerHTML=empty;$('#events-page-results').innerHTML=empty;$('#tle').innerHTML=empty;return
+ }
+ const rowHtml=event=>`<button type="button" data-event-time="${event.t}" style="display:block;width:100%;margin:4px 0;text-align:left">`+
+  `${event.type==='first_observed'?'First observed':'Last observed'} · ${fmt(event.t)} · #${event.track_id} ${escapeHtml(event.cls)} · ${event.observations} observations</button>`;
+ const trackCount=new Set(events.map(event=>`${event.track_id}:${event.cls}`)).size;
+ const summary=`<div class="sub">First/last observation markers for ${trackCount} tracks; these are not incident classifications.</div>`;
+ $('#event-data').innerHTML=summary+events.slice(0,12).map(rowHtml).join('');
+ $('#events-page-results').innerHTML=summary+`<div style="max-height:520px;overflow:auto">${events.map(rowHtml).join('')}</div>`;
+ $('#tle').innerHTML=summary+events.slice(0,8).map(rowHtml).join('');
+}
+async function loadMemoryData(id,offset){
+ try{
+  const response=await fetch(apiUrl(`/api/videos/${id}/memory?offset=${offset}&limit=50`));
+  const data=await response.json();
+  if(!response.ok)throw new Error(data.detail||'Could not load temporal memory.');
+  if(!S.video||S.video.id!==id)return;
+  S.memoryOffset=data.offset;renderMemoryData(data);
+ }catch(error){
+  if(S.video&&S.video.id===id)$('#memory-navigator').textContent='Temporal memory unavailable: '+error.message;
+ }
+}
+async function loadEvidenceData(id,offset){
+ try{
+  const response=await fetch(apiUrl(`/api/videos/${id}/evidence?offset=${offset}&limit=30`));
+  const data=await response.json();
+  if(!response.ok)throw new Error(data.detail||'Could not load evidence items.');
+  if(S.video&&S.video.id===id)renderEvidenceData(data);
+ }catch(error){
+  if(S.video&&S.video.id===id)$('#evidence-items').textContent='Evidence unavailable: '+error.message;
+ }
+}
+function renderConfigRows(selector,rows){
+ $(selector).innerHTML=rows.map(([label,value])=>
+  `<div style="margin:5px 0"><b>${escapeHtml(label)}:</b> ${escapeHtml(String(value))}</div>`).join('');
+}
+async function loadConfiguration(){
+ try{
+  const [configResponse,metricsResponse]=await Promise.all([fetch(apiUrl('/api/system/configuration')),fetch(apiUrl('/api/system'))]);
+  const [config,metrics]=await Promise.all([configResponse.json(),metricsResponse.json()]);
+  if(!configResponse.ok||!metricsResponse.ok)throw new Error(config.detail||metrics.detail||'Could not load system configuration.');
+  renderConfigRows('#config-device',[
+   ['Selected device',config.device.name+' ('+config.device.selected+')'],
+   ['Status',config.device.status],
+   ['CUDA available',config.device.cuda_available?'Yes':'No'],
+   ['Logical CPU cores',config.device.logical_cpu_cores]
+  ]);
+  renderConfigRows('#config-detector',[
+   ['Framework',config.detection_model.framework],
+   ['Configured model',config.detection_model.model],
+   ['Weights file',config.detection_model.weights_file_available?'Available locally':'Not found at configured path; resolved by Ultralytics during analysis'],
+   ['Task',config.detection_model.task]
+  ]);
+  renderConfigRows('#config-tracker',[
+   ['Tracker',config.tracking_model.name],
+   ['Configuration',config.tracking_model.config],
+   ['Status',config.tracking_model.status],
+   ['Cross-video re-identification',config.tracking_model.cross_video_reidentification?'Enabled':'Not implemented']
+  ]);
+  renderConfigRows('#config-pipeline',[
+   ['Detection confidence threshold',config.pipeline.confidence_threshold],
+   ['Minimum frame stride',config.pipeline.minimum_frame_stride],
+   ['Maximum analyzed frames',config.pipeline.max_analysis_frames],
+   ['Model image size',config.pipeline.image_size],
+   ['Supported formats',config.pipeline.supported_extensions.join(', ')]
+  ]);
+  renderConfigRows('#config-runtime',[
+   ['Python',config.runtime.python],
+   ['PyTorch',config.runtime.pytorch],
+   ['Ultralytics',config.runtime.ultralytics],
+   ['scikit-learn',config.runtime.scikit_learn]
+  ]);
+  const gpu=metrics.gpu
+   ?`${metrics.gpu.name} · ${metrics.gpu.util_percent}% · ${metrics.gpu.vram_used_gb}/${metrics.gpu.vram_total_gb} GB VRAM`
+   :'Unavailable (CPU inference or NVIDIA telemetry not present)';
+  renderConfigRows('#config-live',[
+   ['Active video',config.processing.active_video_id===null?'Idle':'#'+config.processing.active_video_id],
+   ['Inference speed',config.processing.inference_fps===null?'Idle':config.processing.inference_fps+' FPS'],
+   ['CPU utilization',metrics.cpu_percent+'%'],
+   ['System RAM',metrics.ram_used_gb+'/'+metrics.ram_total_gb+' GB'],
+   ['GPU telemetry',gpu]
+  ]);
+ }catch(error){
+  ['#config-device','#config-detector','#config-tracker','#config-pipeline','#config-runtime','#config-live']
+   .forEach(selector=>$(selector).textContent='Configuration unavailable: '+error.message);
+ }
+}
+function renderEvidenceData(data){
+ $('#evidence-summary').textContent=`${data.total_items.toLocaleString()} track evidence items · showing ${data.items.length} · ordered by observation count`;
+ $('#evidence-reasoning').textContent=data.reasoning;
+ $('#evidence-limitations').innerHTML=`<ul style="padding-left:20px;margin:8px 0">${data.limitations.map(item=>`<li class="sub" style="margin:5px 0">${escapeHtml(item)}</li>`).join('')}</ul>`;
+ $('#evidence-items').innerHTML=data.items.length?data.items.map(item=>
+  `<div class="card" style="margin:8px 0"><b>Track #${item.track_id} · ${escapeHtml(item.cls)}</b>`+
+  `<div class="sub" style="margin:6px 0">${item.observations.toLocaleString()} stored detections · ${fmt(item.start_t)}–${fmt(item.end_t)} · mean detector confidence ${Math.round((item.mean_conf||0)*100)}%</div>`+
+  `<div class="sub">${escapeHtml(item.reasoning)}</div>`+
+  `<div style="margin-top:8px"><button data-event-time="${item.start_t}">Seek to first observation · ${fmt(item.start_t)}</button> `+
+  `<a href="${apiUrl(item.frames[0].url)}" target="_blank" rel="noopener">Open first source frame</a> `+
+  `<button data-event-time="${item.end_t}">Seek to last observation · ${fmt(item.end_t)}</button> `+
+  `<a href="${apiUrl(item.frames[1].url)}" target="_blank" rel="noopener">Open last source frame</a></div></div>`
+ ).join(''):NO('No stored detection observations are available for this video.');
+ const previous=Math.max(0,data.offset-data.limit),next=data.offset+data.limit;
+ $('#evidence-pagination').innerHTML=`<button type="button" data-evidence-offset="${previous}" ${data.offset===0?'disabled':''}>Previous</button> `+
+  `<button type="button" data-evidence-offset="${next}" ${next>=data.total_items?'disabled':''}>Next</button>`;
+}
+function renderMemoryData(data){
+ const duration=Math.max(data.duration||0,0.001),tracks=data.tracks;
+ $('#memory-summary').innerHTML=`${data.total_tracks.toLocaleString()} tracks · ${data.total_observations.toLocaleString()} observations · ${fmt(duration)} total duration`;
+ if(!tracks.length){
+  $('#memory-graph').innerHTML=NO('No track intervals are available.');
+ }else{
+  const rows=tracks.slice(0,100);
+  $('#memory-graph').innerHTML=`<div class="sub" style="margin:8px 0">Showing ${rows.length} of ${tracks.length} tracks; bars span each track’s first to last observation.</div>`+
+   `<div style="max-height:360px;overflow:auto">${rows.map(track=>{
+    const left=Math.max(0,Math.min(100,track.first_t/duration*100));
+    const width=Math.max(.7,Math.min(100-left,(track.last_t-track.first_t)/duration*100));
+    return `<button type="button" data-memory-time="${track.first_t}" style="display:grid;grid-template-columns:110px minmax(100px,1fr) 90px;gap:8px;align-items:center;width:100%;margin:3px 0;text-align:left">`+
+     `<span>#${track.id} ${escapeHtml(track.cls)}</span><span style="height:12px;position:relative;background:rgba(124,140,160,.12);border-radius:4px"><i style="position:absolute;left:${left}%;width:${width}%;height:100%;background:var(--c);border-radius:4px"></i></span>`+
+     `<span>${fmt(track.first_t)}–${fmt(track.last_t)}</span></button>`;
+   }).join('')}</div>`;
+ }
+ const start=data.total_observations?data.offset+1:0;
+ const end=Math.min(data.offset+data.observations.length,data.total_observations);
+ $('#memory-navigator').innerHTML=data.observations.length
+  ?`<div class="sub">Observations ${start}–${end} of ${data.total_observations.toLocaleString()} · ordered by time</div>`+
+   `<div style="max-height:360px;overflow:auto">${data.observations.map(row=>`<button type="button" data-memory-time="${row.t}" style="display:block;width:100%;margin:3px 0;text-align:left">`+
+    `${fmt(row.t)} · #${row.track_id} ${escapeHtml(row.cls)} · ${Math.round(row.conf*100)}% · (${Math.round(row.x1)},${Math.round(row.y1)})–(${Math.round(row.x2)},${Math.round(row.y2)})</button>`).join('')}</div>`
+  :NO('No observations are available.');
+ const previous=Math.max(0,data.offset-data.limit),next=data.offset+data.limit;
+ $('#memory-pagination').innerHTML=`<button type="button" data-memory-offset="${previous}" ${data.offset===0?'disabled':''}>Previous</button> `+
+  `<button type="button" data-memory-offset="${next}" ${next>=data.total_observations?'disabled':''}>Next</button>`;
+}
+function renderSpatialPlots(data){
+ S.spatialData=data;
+ const tracks=data.tracks||[];
+ const summary=tracks.length
+  ?`Showing ${data.tracks_returned} of ${data.total_tracks} tracks with the most observations. Coordinates are source-image pixels (${data.width}×${data.height}); depth is not available.`
+  :'No tracked trajectories are available for this video.';
+ $('#spatial-summary').textContent=summary;
+ $('#spatial-overview-summary').textContent=summary;
+ function draw(canvasSelector,emptySelector){
+  const canvas=$(canvasSelector),empty=$(emptySelector),rect=canvas.getBoundingClientRect();
+  empty.style.display=tracks.length?'none':'';
+  if(!tracks.length||rect.width<2||rect.height<2)return;
+  const ratio=window.devicePixelRatio||1;
+  canvas.width=Math.round(rect.width*ratio);canvas.height=Math.round(rect.height*ratio);
+  const ctx=canvas.getContext('2d');ctx.setTransform(ratio,0,0,ratio,0,0);
+  ctx.clearRect(0,0,rect.width,rect.height);
+  const margin=36,plotWidth=rect.width-margin*2,plotHeight=rect.height-margin*2;
+  const scale=Math.min(plotWidth/data.width,plotHeight/data.height);
+  const imageWidth=data.width*scale,imageHeight=data.height*scale;
+  const left=margin+(plotWidth-imageWidth)/2,top=margin+(plotHeight-imageHeight)/2;
+  ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(left,top,imageWidth,imageHeight);
+  ctx.strokeStyle='rgba(0,229,255,.35)';ctx.lineWidth=1;ctx.strokeRect(left,top,imageWidth,imageHeight);
+  ctx.font='10px sans-serif';ctx.fillStyle='#7C8CA0';
+  ctx.fillText('0 px',left,top+imageHeight+14);ctx.fillText(`${data.width} px`,left+imageWidth-40,top+imageHeight+14);
+  ctx.fillText('y increases downward',left,Math.max(12,top-8));
+  tracks.forEach((track,index)=>{
+   if(!track.points||track.points.length<1)return;
+   const color=`hsl(${(index*137.5)%360},85%,62%)`;
+   ctx.beginPath();
+   track.points.forEach((point,i)=>{
+    const x=left+point.x*scale,y=top+point.y*scale;
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+   });
+   ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.stroke();
+   const first=track.points[0],last=track.points[track.points.length-1];
+   ctx.fillStyle=color;
+   ctx.beginPath();ctx.arc(left+first.x*scale,top+first.y*scale,3,0,Math.PI*2);ctx.fill();
+   ctx.beginPath();ctx.arc(left+last.x*scale,top+last.y*scale,3,0,Math.PI*2);ctx.fill();
+  });
+ }
+ draw('#spatial-canvas-overview','#spatial-empty-overview');
+ draw('#spatial-canvas','#spatial-empty');
+ $('#spatial-legend').innerHTML=tracks.slice(0,20).map((track,index)=>
+  `<div class="sub" style="margin:2px 0"><i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:hsl(${(index*137.5)%360},85%,62%)"></i> #${track.id} ${escapeHtml(track.cls)} · ${track.observations} observations</div>`).join('');
+}
+addEventListener('resize',()=>{if(S.spatialData)renderSpatialPlots(S.spatialData)});
+async function loadAnomalyData(id){
+ try{
+  const response=await fetch(apiUrl(`/api/videos/${id}/anomalies`));
+  const data=await response.json();
+  if(!response.ok)throw new Error(data.detail||'Could not load anomaly candidates.');
+  if(S.video&&S.video.id===id)renderAnomalies(data);
+ }catch(error){if(S.video&&S.video.id===id)$('#anomaly-method').textContent='Anomaly data unavailable: '+error.message}
+}
+function renderAnomalies(data){
+ $('#anomaly-method').textContent=`Statistical: ${data.method} Model: ${data.model_method} Coordinates are ${data.coordinate_space}. Review flags manually; they are not scene-level conclusions.`;
+ const candidates=data.candidates||[];
+ const modelCandidates=data.model_candidates||[];
+ const eligibility=data.eligibility||{minimum_observations_per_track:8,classes:[]};
+ const emptyAnomalies=(title,message)=>`<div class="empty"><em>${escapeHtml(title)}</em>${escapeHtml(message)}</div>`;
+ const eligibilityMessage=minimumTracks=>{
+  if(!eligibility.classes.length)return 'No tracked objects are available for this video.';
+  const nearest=[...eligibility.classes]
+   .sort((a,b)=>(b.qualifying_tracks-a.qualifying_tracks)||(b.tracks-a.tracks))
+   .slice(0,4)
+   .map(item=>`${item.cls}: ${item.qualifying_tracks}/${minimumTracks} qualifying tracks`)
+   .join('; ');
+  return `No candidate met the threshold of ${minimumTracks} tracks per class with at least ${eligibility.minimum_observations_per_track} observations each. Current closest classes: ${nearest}.`;
+ };
+ const actions=candidate=>candidate.review_status==='pending'
+  ?`<button data-anomaly-review="${candidate.id}" data-review-status="confirmed">Confirm</button> <button data-anomaly-review="${candidate.id}" data-review-status="dismissed">Dismiss</button>`
+  :`<span class="pill">${escapeHtml(candidate.review_status)}</span>`;
+ const sampleNote=candidate=>candidate.class_track_count
+  ?` · ${candidate.class_track_count} qualifying class tracks${candidate.class_track_count<8?' · LOW SAMPLE SUPPORT':''}`
+  :'';
+ $('#statistical-anomalies').innerHTML=candidates.length?candidates.map(candidate=>{
+  return `<div class="card" style="margin:8px 0"><b>Image-plane high-speed outlier · Track #${candidate.track_id} ${escapeHtml(candidate.cls)}</b>`+
+   `<div class="sub" style="margin:6px 0">Exploratory robust z-score ${candidate.robust_z.toFixed(1)}${sampleNote(candidate)} · track median ${candidate.median_speed_px_s.toFixed(1)} px/s · class median ${candidate.class_median_px_s.toFixed(1)} px/s · peak segment ${candidate.peak_segment_px_s.toFixed(1)} px/s · ${candidate.observations} observations</div>`+
+   `<button data-event-time="${candidate.start_t}">View evidence · ${fmt(candidate.start_t)}–${fmt(candidate.end_t)}</button> ${actions(candidate)}`+
+   (candidate.review_note?`<div class="sub" style="margin-top:5px">${escapeHtml(candidate.review_note)}</div>`:'')+`</div>`;
+ }).join(''):emptyAnomalies('NO STATISTICAL OUTLIERS',eligibilityMessage(eligibility.statistical_minimum_tracks_per_class||8));
+ $('#model-candidates').innerHTML=data.model_configured
+  ?modelCandidates.length?modelCandidates.map(candidate=>
+   `<div class="card" style="margin:8px 0"><b>${escapeHtml(data.model_name)} candidate · Track #${candidate.track_id} ${escapeHtml(candidate.cls)}</b>`+
+   `<div class="sub" style="margin:6px 0">Exploratory within-class score ${candidate.anomaly_score.toFixed(4)} (not a probability)${sampleNote(candidate)} · median speed ${candidate.median_speed_px_s.toFixed(1)} px/s · peak segment ${candidate.peak_segment_px_s.toFixed(1)} px/s · ${candidate.observations} observations</div>`+
+   `<button data-event-time="${candidate.start_t}">View evidence · ${fmt(candidate.start_t)}–${fmt(candidate.end_t)}</button> ${actions(candidate)}`+
+   (candidate.review_note?`<div class="sub" style="margin-top:5px">${escapeHtml(candidate.review_note)}</div>`:'')+`</div>`
+  ).join('')
+  :emptyAnomalies('NO MODEL CANDIDATES',eligibilityMessage(eligibility.model_minimum_tracks_per_class||12))
+  :emptyAnomalies('MODEL NOT CONFIGURED','No anomaly model is configured.');
+ const reviewed=[...candidates.map(candidate=>({...candidate,review_source:'Statistical'})),
+  ...modelCandidates.map(candidate=>({...candidate,review_source:data.model_name||'Model'}))]
+  .filter(candidate=>candidate.review_status!=='pending');
+ const pending=[...candidates.map(candidate=>({...candidate,review_source:'Statistical'})),
+  ...modelCandidates.map(candidate=>({...candidate,review_source:data.model_name||'Model'}))]
+  .filter(candidate=>candidate.review_status==='pending');
+ const pendingHtml=pending.length
+  ?`<h4 style="margin:8px 0">AWAITING REVIEW · ${pending.length}</h4>`+
+   pending.map(candidate=>`<div class="card" style="margin:8px 0"><b>${escapeHtml(candidate.review_source)} · Track #${candidate.track_id} ${escapeHtml(candidate.cls)}</b>`+
+    `<div class="sub" style="margin:6px 0">${fmt(candidate.start_t)}–${fmt(candidate.end_t)} · ${candidate.observations} observations${sampleNote(candidate)}</div>`+
+    `<button data-event-time="${candidate.start_t}">View evidence</button> ${actions(candidate)}`+
+    (candidate.review_note?`<div class="sub" style="margin-top:5px">${escapeHtml(candidate.review_note)}</div>`:'')+`</div>`).join('')
+  :'';
+ const reviewedHtml=reviewed.length
+  ?`<h4 style="margin:12px 0 6px">SAVED HUMAN DECISIONS · ${reviewed.length}</h4>`+
+   reviewed.map(candidate=>`<div class="sub" style="margin:6px 0">${escapeHtml(candidate.review_status)} · ${escapeHtml(candidate.review_source)} · Track #${candidate.track_id} ${escapeHtml(candidate.cls)} · ${fmt(candidate.start_t)}–${fmt(candidate.end_t)}${candidate.review_note?` · ${escapeHtml(candidate.review_note)}`:''}</div>`).join('')
+  :pending.length?`<div class="sub">No human decisions saved yet. Confirm or dismiss a pending flag above.</div>`:'';
+ $('#human-reviewed').innerHTML=pending.length||reviewed.length
+  ?pendingHtml+reviewedHtml
+  :emptyAnomalies('NO CANDIDATES TO REVIEW','This video produced no statistical or model candidates, so there is nothing to confirm or dismiss.');
+}
+async function loadFrameDetections(force){
+ const video=S.video;
+ if(!video||!video.id||!video.fps||!vp.videoWidth)return;
+ const now=performance.now();
+ if(!force&&now-S.lastDetectionFetch<100)return;
+ S.lastDetectionFetch=now;
+ const request=++S.detectionRequest,t=vp.currentTime;
+ try{
+  const response=await fetch(apiUrl(`/api/videos/${video.id}/detections?t=${t.toFixed(3)}`));
+  if(!response.ok)throw new Error('Could not load detections for this frame.');
+  const rows=await response.json();
+  if(request!==S.detectionRequest||S.video!==video)return;
+  const canvas=$('#ov'),ctx=canvas.getContext('2d'),width=vp.videoWidth,height=vp.videoHeight;
+  if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height}
+  ctx.clearRect(0,0,width,height);
+  const fontSize=Math.max(14,width/65);ctx.lineWidth=Math.max(2,width/500);ctx.font=`${fontSize}px sans-serif`;
+  rows.forEach(row=>{
+   const x=row.x1,y=row.y1,w=row.x2-row.x1,h=row.y2-row.y1;
+   ctx.strokeStyle='#00E5FF';ctx.strokeRect(x,y,w,h);
+   const label=`${row.cls} #${row.track_id} ${Math.round(row.conf*100)}%`;
+   const labelY=Math.max(0,y-fontSize-4);
+   ctx.fillStyle='rgba(0,12,20,.85)';ctx.fillRect(x,labelY,ctx.measureText(label).width+8,fontSize+4);
+   ctx.fillStyle='#00E5FF';ctx.fillText(label,x+4,labelY+fontSize);
+  });
+  $('#current-frame-data').innerHTML=rows.length
+   ?`<b>${rows.length} detections at ${fmt(rows[0].t)}</b><div style="max-height:180px;overflow:auto">${rows.slice(0,12).map(row=>`${escapeHtml(row.cls)} #${row.track_id} · ${Math.round(row.conf*100)}% · (${Math.round(row.x1)}, ${Math.round(row.y1)})–(${Math.round(row.x2)}, ${Math.round(row.y2)})`).map(line=>`<div style="margin-top:4px">${line}</div>`).join('')}</div>`
+   :`No tracked detections at ${fmt(t)}.`;
+ }catch(error){
+  if(request===S.detectionRequest&&S.video===video)$('#current-frame-data').textContent='Frame detections unavailable: '+error.message;
+ }
+}
+vp.onloadedmetadata=()=>{S.video.duration=vp.duration;const canvas=$('#ov');canvas.width=vp.videoWidth;canvas.height=vp.videoHeight;$('#ovd').innerHTML=fmt(vp.duration)+'<small>LOADED VIDEO DURATION</small>';ticks();upd();loadFrameDetections(true)};
+function ticks(){const d=S.video.duration,tl=$('#tl');tl.innerHTML='';for(let i=0;i<=8;i++)tl.insertAdjacentHTML('beforeend',`<span style="left:${i*12.5}%">${fmt(d*i/8)}</span>`)}
+function upd(){$('#tm').textContent=fmt(vp.currentTime)+' / '+fmt(vp.duration);if(vp.duration)$('#sk').value=vp.currentTime/vp.duration*1000}
+vp.ontimeupdate=()=>{upd();loadFrameDetections(false)};
+vp.onseeked=()=>loadFrameDetections(true);
+$('#pp').onclick=()=>{if(!vp.src)return;vp.paused?vp.play():vp.pause()};vp.onplay=()=>$('#pp').textContent='Pause';vp.onpause=()=>$('#pp').textContent='Play';
+$('#ff').onclick=()=>{vp.pause();vp.currentTime+=1/30};$('#fb').onclick=()=>{vp.pause();vp.currentTime-=1/30};
+$('#sk').oninput=e=>{if(vp.duration)vp.currentTime=e.target.value/1000*vp.duration};
+$('#sp').onchange=e=>vp.playbackRate=+e.target.value;
+$('#ss').onclick=()=>{if(!vp.videoWidth)return;const c=document.createElement('canvas');c.width=vp.videoWidth;c.height=vp.videoHeight;c.getContext('2d').drawImage(vp,0,0);const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='frame_'+vp.currentTime.toFixed(2)+'s.png';a.click();log('Screenshot saved at '+fmt(vp.currentTime))};
+
+/* ---------- Ambient particle backdrop ---------- */
+(function(){const c=$('#bg'),x=c.getContext('2d');let W,H;const P=Array.from({length:60},()=>({x:Math.random(),y:Math.random(),v:.00004+Math.random()*.00008}));
+ const rs=()=>{W=c.width=innerWidth;H=c.height=innerHeight};rs();addEventListener('resize',rs);
+ (function f(){requestAnimationFrame(f);x.clearRect(0,0,W,H);x.fillStyle='rgba(0,229,255,.35)';P.forEach(p=>{p.y-=p.v*16;if(p.y<0)p.y=1;x.fillRect(p.x*W,p.y*H,1.5,1.5)})})();})();
+
+go('overview');
+</script></body></html>
